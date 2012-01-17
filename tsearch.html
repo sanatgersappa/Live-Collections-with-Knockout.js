@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Collection example using knockout.js</title>
+		<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="knockout-2.0.0.js"></script>
+	<head>
+	<body>
+		<ul data-bind="foreach: vm.tweets">
+			<li data-bind="text: text"></li>
+		</ul>
+	</body>
+	<script type="text/javascript">
+	//the tweet object
+	var tweet = function(id, text) {
+		this.id = id;
+		this.text = text;
+	}
+
+	//the view model
+	var vm = {
+		_idCache: {},
+		tweets: ko.observableArray()
+	};
+	ko.applyBindings(vm);
+	
+	//on load
+	$(function() {
+		window.setInterval(function() { poll(); }, 2000);
+	});
+
+	//poll twitter
+	function poll() {
+		var query = 'cats';
+		var url = "http://search.twitter.com/search.json?q=" + query + "&callback=?";
+		$.getJSON(url, function(d) {
+			for (var i = 0, count = d.results.length; i < count; i++) {
+				var t = new tweet(d.results[i].id, d.results[i].text);
+				if (typeof vm._idCache[t.id] === 'undefined') {
+					vm.tweets.push(t);
+					vm._idCache[t.id] = t.id;
+				}
+			}
+		});		
+	}
+	</script>
+</html>
